@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FLUXI V5 — WEB PROXY</title>
+  <link rel="icon" type="image/webp" href="/favicon.webp?v=2" />
+  <link rel="shortcut icon" href="/favicon.ico?v=2" />
+  <link rel="apple-touch-icon" href="/favicon.webp?v=2" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;400;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <!-- BOOT SCREEN -->
+  <div id="boot-screen">
+    <canvas id="boot-canvas"></canvas>
+      <div class="boot-content">
+      <div class="boot-logo">
+        <img class="boot-logo-mark" src="/favicon.webp?v=2" alt="Fluxi logo" />
+        <div class="boot-logo-text">
+          <span class="boot-f">F</span><span class="boot-l">L</span><span class="boot-u">U</span><span class="boot-x">X</span><span class="boot-i">I</span>
+          <span class="boot-v">V5</span>
+        </div>
+      </div>
+      <div class="boot-tagline">INITIALIZING PROXY CORE</div>
+      <div class="boot-bar-wrap">
+        <div class="boot-bar">
+          <div class="boot-bar-fill" id="boot-fill"></div>
+        </div>
+        <div class="boot-percent" id="boot-percent">0%</div>
+      </div>
+      <div class="boot-log" id="boot-log">
+        <span class="log-line">&gt; BOOTING NEURAL GATEWAY...</span>
+      </div>
+    </div>
+    <div class="scanline"></div>
+    <div class="boot-corner tl"></div>
+    <div class="boot-corner tr"></div>
+    <div class="boot-corner bl"></div>
+    <div class="boot-corner br"></div>
+  </div>
+
+  <!-- MAIN APP -->
+  <div id="app" class="hidden">
+    <canvas id="bg-canvas"></canvas>
+    <div class="grid-overlay"></div>
+    <div class="vignette"></div>
+
+    <!-- HEADER / BROWSER BAR -->
+    <header id="main-header">
+      <div class="header-left">
+        <div class="logo">
+          <img class="logo-mark" src="/favicon.webp?v=2" alt="Fluxi logo" />
+          <span class="logo-text">FLUXI</span>
+          <span class="logo-v5">V5</span>
+          <div class="logo-dot"></div>
+        </div>
+        <div class="header-status" id="conn-status">
+          <span class="status-dot"></span>
+          <span class="status-text">PROXY ACTIVE</span>
+        </div>
+      </div>
+
+      <!-- BROWSER CONTROLS (hidden until browsing) -->
+      <div class="browser-controls" id="browser-controls">
+        <button class="ctrl-btn" id="btn-back" title="Back">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg>
+        </button>
+        <button class="ctrl-btn" id="btn-forward" title="Forward">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
+        </button>
+        <button class="ctrl-btn" id="btn-reload" title="Reload">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 4v6h-6"/><path d="M1 20v-6h6"/><path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/></svg>
+        </button>
+        <div class="url-bar-wrap">
+          <div class="url-lock">🔒</div>
+          <input type="text" id="url-display" class="url-bar" placeholder="geforcenow.com" />
+        </div>
+        <button class="ctrl-btn" id="btn-home" title="Home">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+        </button>
+        <button class="ctrl-btn close-btn" id="btn-close" title="Close">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+
+      <div class="header-right">
+        <div class="signal-bars">
+          <div class="bar b1"></div>
+          <div class="bar b2"></div>
+          <div class="bar b3"></div>
+          <div class="bar b4"></div>
+        </div>
+        <div class="user-avatar"><div class="avatar-ring"></div><span>GX</span></div>
+      </div>
+    </header>
+
+    <!-- HOME VIEW -->
+    <main id="home-view">
+      <div class="hero-badge"><span class="badge-dot"></span>WISP + ULTRAVIOLET POWERED</div>
+
+      <h1 class="hero-title">
+        <span class="title-line">BROWSE</span>
+        <span class="title-line accent">FREELY.</span>
+      </h1>
+      <p class="hero-sub">Encrypted · Untraceable · Instant</p>
+
+      <!-- MAIN SEARCH/URL BAR -->
+      <div class="search-container">
+        <div class="search-outer">
+          <div class="search-inner">
+            <div class="search-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+            </div>
+            <input
+              type="text"
+              class="search-input"
+              id="search-input"
+              placeholder="Enter URL or search... (e.g. geforcenow.com)"
+              autocomplete="off"
+              spellcheck="false"
+            />
+            <button class="search-btn" id="search-btn">
+              <span>CONNECT</span>
+              <div class="search-btn-glow"></div>
+            </button>
+          </div>
+          <div class="search-border-top"></div>
+          <div class="search-border-bottom"></div>
+        </div>
+      </div>
+
+      <!-- QUICK SITES -->
+      <div class="quick-sites">
+        <div class="qs-label">QUICK ACCESS</div>
+        <div class="qs-grid">
+          <button class="qs-btn" data-url="https://www.youtube.com">
+            <span class="qs-icon qs-logo" aria-hidden="true"><svg viewBox="0 0 48 48"><rect x="4" y="10" width="40" height="28" rx="10" fill="#ff0033"></rect><path d="M21 18.5 31 24l-10 5.5z" fill="#fff"></path></svg></span>
+            <span>YouTube</span>
+          </button>
+          <button class="qs-btn" data-url="https://www.geforcenow.com">
+            <span class="qs-icon qs-logo" aria-hidden="true"><svg viewBox="0 0 48 48"><rect x="6" y="6" width="36" height="36" rx="8" fill="#76b900"></rect><path d="M15 24c3.5-5.8 10.8-8.6 18-7.1-3.2.9-5.8 2.4-7.8 4.7 2.7-.4 5.2.4 7.3 2.2-2.9-.5-5.5-.2-7.8 1 2.1.2 4 1.1 5.6 2.8-5.7-1.6-10 .4-12.4 6H15c1.2-3.9 3.8-6.8 7.7-8.7-2-.1-4 .2-5.8.9 2.1-1.8 4.6-2.9 7.5-3.5-2.9-.9-5.8-.9-8.4-.3Zm8.6 2.8a4.6 4.6 0 1 0 0 9.2 4.6 4.6 0 0 0 0-9.2Zm0 2.5a2.1 2.1 0 1 1 0 4.2 2.1 2.1 0 0 1 0-4.2Z" fill="#081b00"></path></svg></span>
+            <span>GeForce NOW</span>
+          </button>
+          <button class="qs-btn" data-url="https://discord.com/app">
+            <span class="qs-icon qs-logo" aria-hidden="true"><svg viewBox="0 0 48 48"><rect x="6" y="6" width="36" height="36" rx="12" fill="#5865f2"></rect><path d="M33.7 32.2c-2.1 1.5-4.1 2.4-6 3l-1.4-2.2c.9-.3 1.9-.7 2.8-1.3a13 13 0 0 1-10.2 0c.9.6 1.9 1 2.8 1.3L20.3 35c-1.9-.6-3.9-1.5-6-3 .5-3.7 1.9-6.8 4.1-9.4 1.5-1.1 3.1-1.9 4.7-2.4l.6 1.2a18 18 0 0 1 4.6 0l.6-1.2c1.6.5 3.2 1.3 4.7 2.4 2.2 2.6 3.6 5.7 4.1 9.4ZM20.4 28.6a2 2 0 1 0 0-4 2 2 0 0 0 0 4Zm7.2 0a2 2 0 1 0 0-4 2 2 0 0 0 0 4Z" fill="#fff"></path></svg></span>
+            <span>Discord</span>
+          </button>
+          <button class="qs-btn" data-url="https://www.reddit.com">
+            <span class="qs-icon qs-logo" aria-hidden="true"><svg viewBox="0 0 48 48"><circle cx="24" cy="24" r="18" fill="#ff4500"></circle><circle cx="34.5" cy="18" r="3" fill="#fff"></circle><path d="M30.8 15.8 27.6 14l-1.6 6.1" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round"></path><ellipse cx="24" cy="26.5" rx="10" ry="7.8" fill="#fff"></ellipse><circle cx="19.7" cy="25.7" r="1.8" fill="#ff4500"></circle><circle cx="28.3" cy="25.7" r="1.8" fill="#ff4500"></circle><path d="M19.3 29.3c2.9 2.1 6.5 2.1 9.4 0" fill="none" stroke="#ff4500" stroke-width="2.2" stroke-linecap="round"></path></svg></span>
+            <span>Reddit</span>
+          </button>
+          <button class="qs-btn" data-url="https://www.twitch.tv">
+            <span class="qs-icon qs-logo" aria-hidden="true"><svg viewBox="0 0 48 48"><path d="M9 8h26v18l-6 6h-6l-4 4h-5v-4H9z" fill="#9146ff"></path><path d="M17 15h3v9h-3zm8 0h3v9h-3z" fill="#fff"></path></svg></span>
+            <span>Twitch</span>
+          </button>
+          <button class="qs-btn" data-url="https://store.steampowered.com">
+            <span class="qs-icon qs-logo" aria-hidden="true"><svg viewBox="0 0 48 48"><circle cx="24" cy="24" r="18" fill="#11263a"></circle><circle cx="30.6" cy="17.6" r="5.4" fill="none" stroke="#fff" stroke-width="2.3"></circle><circle cx="30.6" cy="17.6" r="2.1" fill="#fff"></circle><circle cx="18.2" cy="29.2" r="3.6" fill="#fff"></circle><path d="M21.1 27.8 28 21.4" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round"></path><path d="M14.8 27.6 11 26.1" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round"></path></svg></span>
+            <span>Steam</span>
+          </button>
+          <button class="qs-btn" data-url="https://www.google.com">
+            <span class="qs-icon qs-logo" aria-hidden="true"><svg viewBox="0 0 48 48"><path d="M39 24.4c0-1-.1-1.9-.3-2.8H24v5.4h8.4a7.2 7.2 0 0 1-3.1 4.7v3.9h5c2.9-2.7 4.7-6.6 4.7-11.2Z" fill="#4285f4"></path><path d="M24 39.6c4.2 0 7.8-1.4 10.4-4l-5-3.9c-1.4.9-3.2 1.5-5.4 1.5-4.1 0-7.6-2.8-8.8-6.6h-5.2v4c2.6 5.3 8 9 14 9Z" fill="#34a853"></path><path d="M15.2 26.6a9.6 9.6 0 0 1 0-5.2v-4h-5.2a15.6 15.6 0 0 0 0 13.2l5.2-4Z" fill="#fbbc04"></path><path d="M24 14.8c2.3 0 4.4.8 6.1 2.3l4.6-4.6A15 15 0 0 0 10 17.4l5.2 4c1.2-3.8 4.7-6.6 8.8-6.6Z" fill="#ea4335"></path></svg></span>
+            <span>Google</span>
+          </button>
+          <button class="qs-btn" data-url="https://www.spotify.com">
+            <span class="qs-icon qs-logo" aria-hidden="true"><svg viewBox="0 0 48 48"><circle cx="24" cy="24" r="18" fill="#1ed760"></circle><path d="M15 20.4c6-1.8 12.3-1.3 18.2 1.4" fill="none" stroke="#0a0f14" stroke-width="2.8" stroke-linecap="round"></path><path d="M17.3 25.2c4.8-1.3 9.7-.9 14.1 1.1" fill="none" stroke="#0a0f14" stroke-width="2.5" stroke-linecap="round"></path><path d="M19.4 29.5c3.4-.8 6.9-.5 10 .9" fill="none" stroke="#0a0f14" stroke-width="2.3" stroke-linecap="round"></path></svg></span>
+            <span>Spotify</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- STATUS STRIP -->
+      <div class="status-strip">
+        <div class="ss-item">
+          <div class="ss-dot cyan"></div>
+          <span class="ss-label">WISP</span>
+          <span class="ss-val" id="st-wisp">CONNECTING...</span>
+        </div>
+        <div class="ss-sep">|</div>
+        <div class="ss-item">
+          <div class="ss-dot orange"></div>
+          <span class="ss-label">TRANSPORT</span>
+          <span class="ss-val">EPOXY/TLS</span>
+        </div>
+        <div class="ss-sep">|</div>
+        <div class="ss-item">
+          <div class="ss-dot cyan"></div>
+          <span class="ss-label">ENCRYPTION</span>
+          <span class="ss-val">END-TO-END</span>
+        </div>
+        <div class="ss-sep">|</div>
+        <div class="ss-item">
+          <div class="ss-dot orange"></div>
+          <span class="ss-label">CODEC</span>
+          <span class="ss-val">XOR</span>
+        </div>
+      </div>
+    </main>
+
+    <!-- BROWSER VIEW (iframe) -->
+    <div id="browser-view" class="hidden">
+      <div class="tab-strip" id="tab-strip">
+        <div class="tab-list" id="tab-list"></div>
+        <button class="tab-add" id="tab-add" aria-label="Open new tab">+</button>
+      </div>
+      <div class="iframe-loading" id="iframe-loading">
+        <div class="loading-ring"></div>
+        <div class="loading-text">ROUTING THROUGH NEXUS...</div>
+        <div class="loading-url" id="loading-url"></div>
+      </div>
+      <iframe
+        id="proxy-frame"
+        sandbox="allow-forms allow-modals allow-orientation-lock allow-pointer-lock allow-presentation allow-same-origin allow-scripts"
+        allow="autoplay; fullscreen; encrypted-media; picture-in-picture; web-share"
+      ></iframe>
+    </div>
+
+  </div>
+
+  <!-- CURSOR -->
+  <div id="cursor-ring"></div>
+  <div id="cursor-dot"></div>
+
+  <!-- UV Scripts -->
+  <script src="/baremux/index.js"></script>
+  <script src="/uv/uv.bundle.js"></script>
+  <script src="/uv/uv.config.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
