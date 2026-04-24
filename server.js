@@ -9,9 +9,15 @@ import { hostname } from "node:os";
 import wisp from "wisp-server-node";
 
 const app = express();
+const faviconPath = join(process.cwd(), "favicon (1).webp");
 
-app.get(["/favicon.webp", "/favicon.ico"], (req, res) => {
-  res.sendFile(join(process.cwd(), "favicon (1).webp"));
+app.use((req, res, next) => {
+  if (req.path === "/favicon.webp" || req.path === "/favicon.ico") {
+    res.type("image/webp");
+    res.sendFile(faviconPath);
+    return;
+  }
+  next();
 });
 
 // Serve local UV overrides first (config), then package assets.
