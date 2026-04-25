@@ -171,6 +171,15 @@ const proxyState = {
   tabs: [],
   activeTabId: null,
   nextTabId: 1,
+  bookmarks: [
+    { title: 'Startpage', url: 'https://www.startpage.com' },
+    { title: 'YouTube', url: 'https://www.youtube.com' },
+    { title: 'Discord', url: 'https://discord.com/app' },
+    { title: 'Reddit', url: 'https://www.reddit.com' },
+    { title: 'Twitch', url: 'https://www.twitch.tv' },
+    { title: 'Steam', url: 'https://store.steampowered.com' },
+    { title: 'Spotify', url: 'https://www.spotify.com' },
+  ],
 };
 
 const proxyEls = {};
@@ -178,6 +187,7 @@ const proxyEls = {};
 async function initProxy() {
   proxyEls.homeView = document.getElementById('home-view');
   proxyEls.browserView = document.getElementById('browser-view');
+  proxyEls.header = document.getElementById('main-header');
   proxyEls.controls = document.getElementById('browser-controls');
   proxyEls.loading = document.getElementById('iframe-loading');
   proxyEls.loadingUrl = document.getElementById('loading-url');
@@ -187,6 +197,8 @@ async function initProxy() {
   proxyEls.searchButton = document.getElementById('search-btn');
   proxyEls.tabList = document.getElementById('tab-list');
   proxyEls.tabAdd = document.getElementById('tab-add');
+  proxyEls.bookmarksBar = document.getElementById('bookmarks-bar');
+  proxyEls.bookmarkButton = document.getElementById('btn-bookmark');
 
   if ('serviceWorker' in navigator) {
     try {
@@ -218,6 +230,10 @@ async function initProxy() {
   document.querySelectorAll('.qs-btn').forEach(button => {
     button.addEventListener('click', () => navigate(button.dataset.url));
   });
+  proxyEls.bookmarksBar.addEventListener('click', event => {
+    const button = event.target.closest('.bookmark-btn');
+    if (button) navigate(button.dataset.url);
+  });
 
   document.getElementById('btn-back').addEventListener('click', () => {
     try { proxyEls.frame.contentWindow.history.back(); } catch(e) {}
@@ -230,8 +246,8 @@ async function initProxy() {
       proxyEls.frame.src = proxyEls.frame.src;
     }
   });
-  document.getElementById('btn-home').addEventListener('click', () => navigate('https://www.google.com'));
-  document.getElementById('btn-close').addEventListener('click', () => closeTab(proxyState.activeTabId));
+  document.getElementById('btn-home').addEventListener('click', () => showHome());
+  proxyEls.bookmarkButton.addEventListener('click', () => addCurrentPageBookmark());
 
   proxyEls.urlBar.addEventListener('keydown', e => {
     if (e.key === 'Enter') navigate(proxyEls.urlBar.value.trim());
@@ -252,7 +268,9 @@ async function initProxy() {
 
   proxyEls.frame.addEventListener('load', handleFrameLoad);
   window.addEventListener('message', handleProxyMessage);
+  window.addEventListener('resize', syncBrowserOffset);
 
+  renderBookmarks();
   renderTabs();
 }
 
@@ -290,7 +308,7 @@ function openTab(url, options = {}) {
 }
 
 function openNewTab() {
-  openTab('https://www.google.com', { title: 'New Tab' });
+  openTab('https://www.startpage.com', { title: 'New Tab' });
 }
 
 function activateTab(tabId) {
@@ -332,6 +350,8 @@ function loadActiveTab() {
   }
 
   proxyEls.homeView.style.display = 'none';
+  proxyEls.header.classList.remove('hidden-on-home');
+  syncBrowserOffset();
   proxyEls.browserView.classList.remove('hidden');
   proxyEls.controls.classList.remove('hidden');
   proxyEls.loading.classList.remove('hidden');
@@ -344,7 +364,9 @@ function loadActiveTab() {
 
 function showHome() {
   proxyEls.homeView.style.display = '';
+  proxyEls.header.classList.add('hidden-on-home');
   proxyEls.browserView.classList.add('hidden');
+  proxyEls.browserView.style.top = '0px';
   proxyEls.controls.classList.add('hidden');
   proxyEls.loading.classList.add('hidden');
   proxyEls.frame.src = 'about:blank';
@@ -377,6 +399,11 @@ function handleFrameLoad() {
 
   tab.loading = false;
   renderTabs();
+}
+
+function syncBrowserOffset() {
+  if (!proxyEls.header || proxyEls.header.classList.contains('hidden-on-home')) return;
+  proxyEls.browserView.style.top = `${proxyEls.header.offsetHeight}px`;
 }
 
 function attachTabBridge() {
@@ -470,6 +497,26 @@ function renderTabs() {
   }).join('');
 }
 
+function renderBookmarks() {
+  proxyEls.bookmarksBar.innerHTML = proxyState.bookmarks.map(bookmark => `
+    <button class="bookmark-btn" data-url="${escapeHtml(bookmark.url)}" title="${escapeHtml(bookmark.title)}">${escapeHtml(trimBookmarkTitle(bookmark.title))}</button>
+  `).join('');
+}
+
+function addCurrentPageBookmark() {
+  const tab = getActiveTab();
+  if (!tab || !tab.displayUrl) return;
+
+  const exists = proxyState.bookmarks.some(bookmark => bookmark.url === tab.displayUrl);
+  if (exists) return;
+
+  proxyState.bookmarks.push({
+    title: trimBookmarkTitle(tab.title || deriveTabTitle(tab.displayUrl)),
+    url: tab.displayUrl,
+  });
+  renderBookmarks();
+}
+
 function normalizeUrlInput(raw, strictUrl = false) {
   if (!raw) return '';
   let url = String(raw).trim();
@@ -483,7 +530,7 @@ function normalizeUrlInput(raw, strictUrl = false) {
 
   if (/^[a-zA-Z][a-zA-Z\d+.-]*:/.test(url)) return url;
   if (!strictUrl && (!url.includes('.') || url.includes(' '))) {
-    return 'https://www.google.com/search?q=' + encodeURIComponent(url);
+    return 'https://www.startpage.com/do/search?q=' + encodeURIComponent(url);
   }
 
   return 'https://' + url.replace(/^\/+/, '');
@@ -496,6 +543,11 @@ function deriveTabTitle(url) {
   } catch(e) {
     return 'New Tab';
   }
+}
+
+function trimBookmarkTitle(title) {
+  if (!title) return 'Bookmark';
+  return title.length > 22 ? title.slice(0, 19) + '...' : title;
 }
 
 function trimTabTitle(title) {

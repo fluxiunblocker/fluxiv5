@@ -19,10 +19,9 @@
     <canvas id="boot-canvas"></canvas>
       <div class="boot-content">
       <div class="boot-logo">
-        <img class="boot-logo-mark" src="/favicon.webp?v=2" alt="Fluxi logo" />
         <div class="boot-logo-text">
           <span class="boot-f">F</span><span class="boot-l">L</span><span class="boot-u">U</span><span class="boot-x">X</span><span class="boot-i">I</span>
-          <span class="boot-v">V5</span>
+          <span class="boot-v">V4</span>
         </div>
       </div>
       <div class="boot-tagline">INITIALIZING PROXY CORE</div>
@@ -50,51 +49,46 @@
     <div class="vignette"></div>
 
     <!-- HEADER / BROWSER BAR -->
-    <header id="main-header">
-      <div class="header-left">
-        <div class="logo">
-          <img class="logo-mark" src="/favicon.webp?v=2" alt="Fluxi logo" />
-          <span class="logo-text">FLUXI</span>
-          <span class="logo-v5">V5</span>
-          <div class="logo-dot"></div>
+    <header id="main-header" class="hidden-on-home">
+      <div class="browser-shell">
+        <div class="tab-row">
+          <div class="header-left">
+            <div class="logo">
+              <img class="logo-mark" src="/favicon.webp?v=2" alt="Fluxi logo" />
+            </div>
+          </div>
+          <div class="tab-list" id="tab-list"></div>
+          <button class="ctrl-btn tab-add" id="tab-add" title="New Tab" aria-label="Open new tab">+</button>
+          <div class="header-right">
+            <div class="header-status" id="conn-status">
+              <span class="status-dot"></span>
+              <span class="status-text">PROXY ACTIVE</span>
+            </div>
+            <div class="user-avatar"><div class="avatar-ring"></div><span>GX</span></div>
+          </div>
         </div>
-        <div class="header-status" id="conn-status">
-          <span class="status-dot"></span>
-          <span class="status-text">PROXY ACTIVE</span>
-        </div>
-      </div>
 
-      <!-- BROWSER CONTROLS (hidden until browsing) -->
-      <div class="browser-controls" id="browser-controls">
-        <button class="ctrl-btn" id="btn-back" title="Back">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg>
-        </button>
-        <button class="ctrl-btn" id="btn-forward" title="Forward">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
-        </button>
-        <button class="ctrl-btn" id="btn-reload" title="Reload">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 4v6h-6"/><path d="M1 20v-6h6"/><path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/></svg>
-        </button>
-        <div class="url-bar-wrap">
-          <div class="url-lock">🔒</div>
-          <input type="text" id="url-display" class="url-bar" placeholder="geforcenow.com" />
+        <div class="browser-controls" id="browser-controls">
+          <button class="ctrl-btn" id="btn-back" title="Back">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg>
+          </button>
+          <button class="ctrl-btn" id="btn-forward" title="Forward">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
+          </button>
+          <button class="ctrl-btn" id="btn-reload" title="Reload">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 4v6h-6"/><path d="M1 20v-6h6"/><path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/></svg>
+          </button>
+          <button class="ctrl-btn" id="btn-home" title="Home">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+          </button>
+          <div class="url-bar-wrap">
+            <div class="url-lock">🔒</div>
+            <input type="text" id="url-display" class="url-bar" placeholder="geforcenow.com" />
+            <button class="bookmark-star" id="btn-bookmark" title="Bookmark this page" aria-label="Bookmark this page">★</button>
+          </div>
         </div>
-        <button class="ctrl-btn" id="btn-home" title="Home">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
-        </button>
-        <button class="ctrl-btn close-btn" id="btn-close" title="Close">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-        </button>
-      </div>
 
-      <div class="header-right">
-        <div class="signal-bars">
-          <div class="bar b1"></div>
-          <div class="bar b2"></div>
-          <div class="bar b3"></div>
-          <div class="bar b4"></div>
-        </div>
-        <div class="user-avatar"><div class="avatar-ring"></div><span>GX</span></div>
+        <div class="bookmarks-bar" id="bookmarks-bar"></div>
       </div>
     </header>
 
@@ -202,10 +196,6 @@
 
     <!-- BROWSER VIEW (iframe) -->
     <div id="browser-view" class="hidden">
-      <div class="tab-strip" id="tab-strip">
-        <div class="tab-list" id="tab-list"></div>
-        <button class="tab-add" id="tab-add" aria-label="Open new tab">+</button>
-      </div>
       <div class="iframe-loading" id="iframe-loading">
         <div class="loading-ring"></div>
         <div class="loading-text">ROUTING THROUGH NEXUS...</div>
