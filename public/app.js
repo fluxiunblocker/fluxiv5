@@ -191,7 +191,7 @@ async function initProxy() {
   proxyEls.controls = document.getElementById('browser-controls');
   proxyEls.loading = document.getElementById('iframe-loading');
   proxyEls.loadingUrl = document.getElementById('loading-url');
-  proxyEls.frame = document.getElementById('proxy-frame');
+  proxyEls.frameHost = document.getElementById('frame-host');
   proxyEls.urlBar = document.getElementById('url-display');
   proxyEls.searchInput = document.getElementById('search-input');
   proxyEls.searchButton = document.getElementById('search-btn');
@@ -236,14 +236,17 @@ async function initProxy() {
   });
 
   document.getElementById('btn-back').addEventListener('click', () => {
-    try { proxyEls.frame.contentWindow.history.back(); } catch(e) {}
+    const frame = getActiveFrame();
+    try { frame?.contentWindow.history.back(); } catch(e) {}
   });
   document.getElementById('btn-forward').addEventListener('click', () => {
-    try { proxyEls.frame.contentWindow.history.forward(); } catch(e) {}
+    const frame = getActiveFrame();
+    try { frame?.contentWindow.history.forward(); } catch(e) {}
   });
   document.getElementById('btn-reload').addEventListener('click', () => {
-    try { proxyEls.frame.contentWindow.location.reload(); } catch(e) {
-      proxyEls.frame.src = proxyEls.frame.src;
+    const frame = getActiveFrame();
+    try { frame?.contentWindow.location.reload(); } catch(e) {
+      if (frame) frame.src = frame.src;
     }
   });
   document.getElementById('btn-home').addEventListener('click', () => showHome());
@@ -266,7 +269,6 @@ async function initProxy() {
   });
   proxyEls.tabAdd.addEventListener('click', () => openNewTab());
 
-  proxyEls.frame.addEventListener('load', handleFrameLoad);
   window.addEventListener('message', handleProxyMessage);
   window.addEventListener('resize', syncBrowserOffset);
 
@@ -300,6 +302,7 @@ function openTab(url, options = {}) {
     displayUrl: url,
     proxiedUrl: buildProxiedUrl(url),
     loading: true,
+    frame: createTabFrame(),
   };
 
   proxyState.tabs.push(tab);
@@ -323,7 +326,8 @@ function closeTab(tabId) {
   if (index === -1) return;
 
   const wasActive = proxyState.activeTabId === tabId;
-  proxyState.tabs.splice(index, 1);
+  const [removedTab] = proxyState.tabs.splice(index, 1);
+  if (removedTab?.frame) removedTab.frame.remove();
 
   if (!proxyState.tabs.length) {
     proxyState.activeTabId = null;
@@ -357,9 +361,17 @@ function loadActiveTab() {
   proxyEls.loading.classList.remove('hidden');
   proxyEls.loadingUrl.textContent = tab.displayUrl;
   proxyEls.urlBar.value = tab.displayUrl;
-  tab.loading = true;
+  syncActiveFrame();
   renderTabs();
-  proxyEls.frame.src = tab.proxiedUrl;
+
+  if (!tab.frame.dataset.loaded) {
+    tab.loading = true;
+    tab.frame.src = tab.proxiedUrl;
+    return;
+  }
+
+  tab.loading = false;
+  proxyEls.loading.classList.add('hidden');
 }
 
 function showHome() {
@@ -369,28 +381,25 @@ function showHome() {
   proxyEls.browserView.style.top = '0px';
   proxyEls.controls.classList.add('hidden');
   proxyEls.loading.classList.add('hidden');
-  proxyEls.frame.src = 'about:blank';
 }
 
-function handleFrameLoad() {
-  const tab = getActiveTab();
+function handleFrameLoad(event) {
+  const tab = proxyState.tabs.find(entry => entry.frame === event.currentTarget);
   if (!tab) return;
 
-  proxyEls.loading.classList.add('hidden');
-  attachTabBridge();
+  tab.frame.dataset.loaded = 'true';
+  attachTabBridge(tab.frame);
 
   try {
-    const loc = proxyEls.frame.contentWindow.location.href;
+    const loc = tab.frame.contentWindow.location.href;
     if (loc && loc !== 'about:blank') {
       tab.displayUrl = decodeProxiedUrl(loc) || loc;
       tab.proxiedUrl = loc;
-      proxyEls.urlBar.value = tab.displayUrl;
-      proxyEls.loadingUrl.textContent = tab.displayUrl;
     }
   } catch(e) {}
 
   try {
-    const title = proxyEls.frame.contentDocument.title.trim();
+    const title = tab.frame.contentDocument.title.trim();
     if (title) tab.title = title;
     else tab.title = deriveTabTitle(tab.displayUrl);
   } catch(e) {
@@ -398,6 +407,13 @@ function handleFrameLoad() {
   }
 
   tab.loading = false;
+
+  if (tab.id === proxyState.activeTabId) {
+    proxyEls.loading.classList.add('hidden');
+    proxyEls.urlBar.value = tab.displayUrl;
+    proxyEls.loadingUrl.textContent = tab.displayUrl;
+  }
+
   renderTabs();
 }
 
@@ -406,10 +422,10 @@ function syncBrowserOffset() {
   proxyEls.browserView.style.top = `${proxyEls.header.offsetHeight}px`;
 }
 
-function attachTabBridge() {
+function attachTabBridge(frame) {
   try {
-    const frameWindow = proxyEls.frame.contentWindow;
-    const frameDocument = proxyEls.frame.contentDocument;
+    const frameWindow = frame.contentWindow;
+    const frameDocument = frame.contentDocument;
     if (!frameWindow || !frameDocument || frameWindow.__fluxiTabBridgeInstalled) return;
 
     frameWindow.__fluxiTabBridgeInstalled = true;
@@ -476,11 +492,16 @@ function getActiveTab() {
   return proxyState.tabs.find(tab => tab.id === proxyState.activeTabId) || null;
 }
 
+function getActiveFrame() {
+  return getActiveTab()?.frame || null;
+}
+
 function updateTab(tab, url, title) {
   tab.displayUrl = url;
   tab.proxiedUrl = buildProxiedUrl(url);
   tab.title = title || deriveTabTitle(url);
   tab.loading = true;
+  tab.frame.dataset.loaded = '';
 }
 
 function renderTabs() {
@@ -515,6 +536,23 @@ function addCurrentPageBookmark() {
     url: tab.displayUrl,
   });
   renderBookmarks();
+}
+
+function createTabFrame() {
+  const frame = document.createElement('iframe');
+  frame.className = 'proxy-frame';
+  frame.sandbox = 'allow-forms allow-modals allow-orientation-lock allow-pointer-lock allow-presentation allow-same-origin allow-scripts';
+  frame.allow = 'autoplay; fullscreen; encrypted-media; picture-in-picture; web-share';
+  frame.addEventListener('load', handleFrameLoad);
+  proxyEls.frameHost.appendChild(frame);
+  return frame;
+}
+
+function syncActiveFrame() {
+  proxyState.tabs.forEach(tab => {
+    if (!tab.frame) return;
+    tab.frame.classList.toggle('active', tab.id === proxyState.activeTabId);
+  });
 }
 
 function normalizeUrlInput(raw, strictUrl = false) {
