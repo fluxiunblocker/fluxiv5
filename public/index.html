@@ -3,21 +3,25 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>FLUXI V5 — WEB PROXY</title>
+  <title>FLUXI V4 — WEB PROXY</title>
   <link rel="icon" type="image/webp" href="/favicon.webp?v=2" />
   <link rel="shortcut icon" href="/favicon.ico?v=2" />
   <link rel="apple-touch-icon" href="/favicon.webp?v=2" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;400;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="/style.css" />
 </head>
 <body>
 
   <!-- BOOT SCREEN -->
   <div id="boot-screen">
     <canvas id="boot-canvas"></canvas>
-      <div class="boot-content">
+    <div class="boot-halo boot-halo-a"></div>
+    <div class="boot-halo boot-halo-b"></div>
+    <div class="boot-noise"></div>
+    <div class="boot-sweep"></div>
+    <div class="boot-content">
       <div class="boot-logo">
         <div class="boot-logo-text">
           <span class="boot-f">F</span><span class="boot-l">L</span><span class="boot-u">U</span><span class="boot-x">X</span><span class="boot-i">I</span>
@@ -25,6 +29,7 @@
         </div>
       </div>
       <div class="boot-tagline">INITIALIZING PROXY CORE</div>
+      <div class="boot-subtag">CINEMATIC SHELL · SECURE TUNNEL · LIVE SESSION</div>
       <div class="boot-bar-wrap">
         <div class="boot-bar">
           <div class="boot-bar-fill" id="boot-fill"></div>
@@ -94,6 +99,8 @@
 
     <!-- HOME VIEW -->
     <main id="home-view">
+      <div class="hero-ambient hero-ambient-a"></div>
+      <div class="hero-ambient hero-ambient-b"></div>
       <div class="hero-badge"><span class="badge-dot"></span>WISP + ULTRAVIOLET POWERED</div>
 
       <h1 class="hero-title">
@@ -214,6 +221,6 @@
   <script src="/baremux/index.js"></script>
   <script src="/uv/uv.bundle.js"></script>
   <script src="/uv/uv.config.js"></script>
-  <script src="app.js"></script>
+  <script src="/app.js"></script>
 </body>
 </html>

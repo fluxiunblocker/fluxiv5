@@ -17,9 +17,15 @@ document.addEventListener('mousemove', e => {
   ring.style.top  = ry + 'px';
   requestAnimationFrame(cursorLoop);
 })();
-document.querySelectorAll('button,a,input,.qs-btn,.ctrl-btn').forEach(el => {
-  el.addEventListener('mouseenter', () => document.body.classList.add('cursor-active'));
-  el.addEventListener('mouseleave', () => document.body.classList.remove('cursor-active'));
+document.addEventListener('mouseover', e => {
+  if (e.target.closest('button,a,input,.qs-btn,.ctrl-btn,.bookmark-btn,.browser-tab')) {
+    document.body.classList.add('cursor-active');
+  }
+});
+document.addEventListener('mouseout', e => {
+  if (e.target.closest('button,a,input,.qs-btn,.ctrl-btn,.bookmark-btn,.browser-tab')) {
+    document.body.classList.remove('cursor-active');
+  }
 });
 
 // ─── BOOT SCREEN ────────────────────────────────────────
@@ -78,33 +84,35 @@ const pctEl = document.getElementById('boot-percent');
 const logEl = document.getElementById('boot-log');
 const bootLogs = [
   '> BOOTING NEURAL GATEWAY...',
+  '> CALIBRATING CINEMATIC STARTUP...',
   '> LOADING UV SERVICE WORKER...',
   '> CONNECTING WISP TRANSPORT...',
   '> INITIALIZING EPOXY/TLS...',
   '> ENCRYPTING PROXY TUNNEL...',
   '> MOUNTING BARE MUX...',
-  '> FLUXI V5 PROXY READY.',
+  '> FLUXI V4 PROXY READY.',
 ];
 
 let progress = 0, logIdx = 0;
 function runBoot() {
   const t = setInterval(() => {
-    progress = Math.min(progress + Math.random()*4+1, 100);
+    progress = Math.min(progress + Math.random()*3.6 + (progress < 24 ? 2.2 : 0.8), 100);
     fill.style.width = progress + '%';
     pctEl.textContent = Math.floor(progress) + '%';
     const nl = Math.floor((progress/100)*(bootLogs.length-1));
     if (nl !== logIdx) { logIdx = nl; logEl.innerHTML = `<span>${bootLogs[logIdx]}</span>`; }
-    if (progress >= 100) { clearInterval(t); setTimeout(exitBoot, 500); }
+    if (progress >= 100) { clearInterval(t); setTimeout(exitBoot, 650); }
   }, 40);
 }
 function exitBoot() {
   cancelAnimationFrame(bRAF);
   document.getElementById('boot-screen').classList.add('exit');
   document.getElementById('app').classList.remove('hidden');
+  document.body.classList.add('app-ready');
   initApp();
-  setTimeout(() => document.getElementById('boot-screen').style.display = 'none', 900);
+  setTimeout(() => document.getElementById('boot-screen').style.display = 'none', 1100);
 }
-setTimeout(runBoot, 1500);
+setTimeout(runBoot, 950);
 
 // ─── MAIN APP ────────────────────────────────────────────
 function initApp() {
@@ -183,6 +191,16 @@ const proxyState = {
 };
 
 const proxyEls = {};
+
+function getRouteLaunchTarget() {
+  const match = window.location.pathname.match(/^\/(?:search|go)\/(.+)$/i);
+  if (!match) return '';
+  try {
+    return decodeURIComponent(match[1].replace(/\/+$/, ''));
+  } catch(e) {
+    return match[1];
+  }
+}
 
 async function initProxy() {
   proxyEls.homeView = document.getElementById('home-view');
@@ -274,6 +292,11 @@ async function initProxy() {
 
   renderBookmarks();
   renderTabs();
+
+  const routeTarget = getRouteLaunchTarget();
+  if (routeTarget) {
+    navigate(routeTarget);
+  }
 }
 
 function navigate(raw, options = {}) {

@@ -36,6 +36,10 @@ app.use(express.static("public"));
 // Fallback to ultraviolet-static's built-in pages (404 etc)
 app.use(express.static(publicPath));
 
+app.get(["/search/:target", "/go/:target"], (req, res) => {
+  res.sendFile(join(process.cwd(), "public", "index.html"));
+});
+
 const server = createServer();
 
 server.on("request", (req, res) => {
