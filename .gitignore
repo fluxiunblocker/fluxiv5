@@ -9,3 +9,5 @@ pnpm-debug.log*
 .env.*
 dist/
 coverage/
+
+.vercel

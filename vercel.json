@@ -1,0 +1,30 @@
+{
+  "framework": null,
+  "buildCommand": "npm run build",
+  "outputDirectory": "public",
+  "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [
+        {
+          "key": "Cross-Origin-Opener-Policy",
+          "value": "same-origin"
+        },
+        {
+          "key": "Cross-Origin-Embedder-Policy",
+          "value": "require-corp"
+        }
+      ]
+    }
+  ],
+  "rewrites": [
+    {
+      "source": "/search/:path*",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/go/:path*",
+      "destination": "/index.html"
+    }
+  ]
+}

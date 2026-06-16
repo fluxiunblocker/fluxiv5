@@ -5,6 +5,7 @@
   "type": "module",
   "main": "server.js",
   "scripts": {
+    "build": "node scripts/copy-static-assets.mjs",
     "start": "node server.js",
     "dev": "node server.js"
   },

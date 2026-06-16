@@ -230,7 +230,9 @@ async function initProxy() {
   try {
     if (typeof BareMux !== 'undefined') {
       const conn = new BareMux.BareMuxConnection('/baremux/worker.js');
-      const wispUrl = (location.protocol === 'https:' ? 'wss' : 'ws') + '://' + location.host + '/wisp/';
+      const localWispUrl = (location.protocol === 'https:' ? 'wss' : 'ws') + '://' + location.host + '/wisp/';
+      const hostedWispUrl = window.FLUXI_WISP_URL || 'wss://wisp.rhw.one/wisp/';
+      const wispUrl = ['localhost', '127.0.0.1'].includes(location.hostname) ? localWispUrl : hostedWispUrl;
       await conn.setTransport('/epoxy/index.mjs', [{ wisp: wispUrl }]);
       document.getElementById('st-wisp').textContent = 'CONNECTED';
       console.log('[FLUXI] Wisp/Epoxy transport active');
@@ -381,8 +383,8 @@ function loadActiveTab() {
   syncBrowserOffset();
   proxyEls.browserView.classList.remove('hidden');
   proxyEls.controls.classList.remove('hidden');
-  proxyEls.loading.classList.remove('hidden');
-  proxyEls.loadingUrl.textContent = tab.displayUrl;
+  proxyEls.loading.classList.add('hidden');
+  proxyEls.loadingUrl.textContent = '';
   proxyEls.urlBar.value = tab.displayUrl;
   syncActiveFrame();
   renderTabs();
@@ -434,7 +436,7 @@ function handleFrameLoad(event) {
   if (tab.id === proxyState.activeTabId) {
     proxyEls.loading.classList.add('hidden');
     proxyEls.urlBar.value = tab.displayUrl;
-    proxyEls.loadingUrl.textContent = tab.displayUrl;
+    proxyEls.loadingUrl.textContent = '';
   }
 
   renderTabs();
@@ -564,8 +566,8 @@ function addCurrentPageBookmark() {
 function createTabFrame() {
   const frame = document.createElement('iframe');
   frame.className = 'proxy-frame';
-  frame.sandbox = 'allow-forms allow-modals allow-orientation-lock allow-pointer-lock allow-presentation allow-same-origin allow-scripts';
-  frame.allow = 'autoplay; fullscreen; encrypted-media; picture-in-picture; web-share';
+  frame.allow = 'autoplay; fullscreen; encrypted-media; picture-in-picture; web-share; gamepad; microphone; camera; clipboard-read; clipboard-write; display-capture; pointer-lock';
+  frame.allowFullscreen = true;
   frame.addEventListener('load', handleFrameLoad);
   proxyEls.frameHost.appendChild(frame);
   return frame;
