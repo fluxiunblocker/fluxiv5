@@ -7,15 +7,20 @@
   "scripts": {
     "build": "node scripts/copy-static-assets.mjs",
     "start": "node server.js",
-    "dev": "node server.js"
+    "dev": "node server.js",
+    "deploy": "wrangler deploy",
+    "preview": "wrangler dev"
   },
   "dependencies": {
-    "@titaniumnetwork-dev/ultraviolet": "^3.2.6",
+    "@mercuryworkshop/bare-as-module3": "^2.2.2",
     "@mercuryworkshop/bare-mux": "^2.0.3",
     "@mercuryworkshop/epoxy-transport": "^2.1.3",
-    "@mercuryworkshop/bare-as-module3": "^2.2.2",
+    "@titaniumnetwork-dev/ultraviolet": "^3.2.6",
+    "express": "^4.18.2",
     "ultraviolet-static": "^1.0.2",
-    "wisp-server-node": "^1.1.3",
-    "express": "^4.18.2"
+    "wisp-server-node": "^1.1.3"
+  },
+  "devDependencies": {
+    "wrangler": "^4.100.0"
   }
 }
